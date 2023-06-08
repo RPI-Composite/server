@@ -1,0 +1,32 @@
+{
+  "name": "rpi-composit-server",
+  "version": "1.0.0",
+  "description": "the server for the RPI Composite website",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Software-Design-and-Documentation/server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Software-Design-and-Documentation/server/issues"
+  },
+  "homepage": "https://github.com/Software-Design-and-Documentation/server#readme",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "body-parser": "^1.20.2",
+    "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "string-escape-regex": "^1.0.0",
+    "tqdm": "^2.0.3",
+    "xml2js": "^0.6.0",
+    "xmldom": "^0.6.0",
+    "xpath": "^0.0.32"
+  },
+  "type": "module"
+}
