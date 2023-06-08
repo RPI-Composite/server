@@ -1,2 +1,2 @@
 # server
-This rpository holds the server/API for RPI Composit
+This repository holds the server/API for RPI Composit
