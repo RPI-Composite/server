@@ -5,64 +5,120 @@ import path from "path";
 import fs from 'fs';
 
 
-export async function getCoursesPast(year) {
-    const response = await axios.get('https://raw.githubusercontent.com/quatalog/data/main/terms_offered.json', { responseType: "json" });
+const quacsCatBasePath = "https://raw.githubusercontent.com/quacs/quacs-data/master/semester_data/";
+
+
+function getCurrentTerm() {
+    var query = `${(new Date()).getFullYear()}`;
+
+    const monthRaw = (new Date()).getMonth();
+    if (monthRaw >= 9)
+        query += '09';
+    else if (monthRaw >= 5)
+        query += '05';
+    else
+        query += '01';
+    return query;
+}
+
+
+/**
+ * @description get the current courses for the current semester
+ */
+export async function getCoursesCurrent() {
+    var query = getCurrentTerm();
+
+    const response = await axios.get(`${quacsCatBasePath}${query}/courses.json`, { responseType: "json" });
     return response.data;
 }
 
 
 /**
- * @description get the current courses for the current year? semester?
+ * @param {Number} year full year
+ * @param {Number} semRaw where term is 0 (spring), 1 (summer) or 2 (fall)
  */
-export async function getCoursesCurrent() {
-    const response = await axios.get('https://raw.githubusercontent.com/quatalog/data/main/catalog.json', { responseType: "json" });
-    return response.data;
-}
-
-
-export async function searchCourses(termRaw) {
+export async function getCoursesTerm(year, semRaw) {
     try {
-        const query = termRaw.replace('-', '').toLowerCase().replace(" ", ""); // Remove dash from the search query for comparison
-        const allCourses = await getCoursesCurrent();
-    
-        const filteredData = Object.keys(allCourses)
-            .filter(key => {
-                try {                    
-                    const course = allCourses[key];
-                    const courseKey = key.replace('-', '').replace(" ", "").toLowerCase(); // Remove dash from the key for comparison
-                    const courseSubj = course.subj.replace('-', '').replace(" ", "").toLowerCase(); // Remove dash from the subject for comparison
-                    const courseName = course.name.replace('-', '').replace(" ", "").toLowerCase(); // Remove dash from the name for comparison
+        var sem;
+        if (semRaw == 0) sem = 1;
+        else if (semRaw == 1) sem = 5;
+        else if (semRaw == 2) sem = 9;
+        else return "incorrect semester!";
 
-                    return (
-                        courseKey.includes(query) ||
-                        courseSubj.includes(query) ||
-                        courseName.includes(query)
-                    );
-                } catch (err) { console.error(err); return false; }
-            })
-            .reduce((obj, key) => {
-                obj[key] = allCourses[key];
-                return obj;
-            }, {});
+        if (year == Number.NaN || year < 1999) return "incorrect year!";
         
-        return filteredData;
+        const queryurl = `${quacsCatBasePath}${year}0${sem}/courses.json`;
+        const response = await axios.get(queryurl, {responseType: 'json'});
+        return response.data;
     }
     catch (err) {
         console.error(err);
         return null;
     }
-    
 }
 
 
-export async function getInfo(query = null) {
+export async function searchCourses(termRaw, year = null, sem = null) {
     try {
-        const result = await axios.get('https://raw.githubusercontent.com/quatalog/data/main/prerequisites.json');
+        const query = termRaw.replaceAll('-', '').toLowerCase().replaceAll(" ", ""); // Remove dash from the search query for comparison
+        const allCourses = (sem && year) ? await getCoursesTerm(Number(year), Number(sem)) : await getCoursesCurrent();
+
+        if (typeof allCourses == 'string') return allCourses;
+
+        var byDeptCode = Object.entries(allCourses)
+        .filter(o => {
+            const courses = o[1];
+            return query.includes(courses.code.toLowerCase());
+        })[0][1];
+
+        if (!byDeptCode) byDeptCode = allCourses;
+        
+        const courses = Object.entries(byDeptCode.courses)
+        .filter(o => {
+            const course = o[1];
+            try {
+                const courseId = course.id.replaceAll('-', '').replaceAll(" ", "").toLowerCase(); // Remove dash from the key for comparison
+                const courseSubj = course.subj.replaceAll('-', '').replaceAll(" ", "").toLowerCase(); // Remove dash from the subject for comparison
+
+                // figure out how to replace the roman numerals
+                var courseName = course.title;
+                courseName = courseName.replaceAll('-', '').replaceAll(" ", "").toLowerCase(); // Remove dash from the name for comparison
+
+                const matches = (
+                    courseId.includes(query) ||
+                    courseSubj.includes(query) ||
+                    courseName.includes(query)
+                );
+
+                return matches;
+            } catch (err) { console.error(err); return false; }
+        })
+        .reduce((obj, key) => {
+            const course = key[1];
+            obj[course.id] = course;
+            return obj;
+        }, {});
+
+        return courses;
+    }
+    catch (err) {
+        console.error(err);
+        return null;
+    }
+}
+
+
+export async function getPrereqs(query = null, year = null, sem = null) {
+    const term = (year && sem) ? `${year}0${sem}` : getCurrentTerm();
+    try {
+        const result = await axios.get(`${quacsCatBasePath}/${term}/prerequisites.json`);
         const allPrereqs = result.data;
-    
+
+        return allPrereqs;
+
         if (!query) return allPrereqs;
         const filtered = allPrereqs[query];
-        
+
         return filtered;
     }
     catch (err) {

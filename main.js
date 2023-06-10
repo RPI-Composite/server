@@ -30,21 +30,26 @@ app.get('/getCoursesCurrent', async (req, res) => {
 
 app.get('/searchCourses', async (req, res) => {
     // Get the code from the headers later
-    const code = req.query['code'];
-    if (!code) return res.sendStatus(404);
+    const {query, year, term} = req.query;
 
-    const data = await catscraper.searchCourses(code);
+    if (!query) return res.sendStatus(404);
+
+    const data = await catscraper.searchCourses(query, year, term);
     
     if (!data) return res.sendStatus(404);
+    else if (typeof data == 'string') return res.send(JSON.stringify({
+        type: 1,
+        message: data
+    }));
+
     res.send(JSON.stringify(data));
 });
 
 
 app.get('/courseinfo', async (req, res) => {
-    const key = req.query['code'];
-    if (!key) return res.sendStatus(404);
+    const {query, year, term} = req.query;
 
-    const data = await catscraper.getInfo(key);
+    const data = await catscraper.getPrereqs(query, year, term);
     if (!data) return res.sendStatus(404);
 
     res.send(JSON.stringify(data));
