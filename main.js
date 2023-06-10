@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import * as catscraper from "./scripts/catalog/quatalog-scraper.js";
+import * as catscraper from "./scripts/catalog/quacs-scraper.js";
 
 
 
@@ -16,8 +16,28 @@ app.get('/', async (req, res) => {
 });
 
 
+app.get('/schools', async (req, res) => {
+    try {
+        const {year, sem} = req.query;
+        const data = await catscraper.getDepts(year, sem);
+
+        if (!data) return res.sendStatus(500);
+        else if (typeof data == 'string') return res.send(JSON.stringify({
+            type: 1,
+            message: data
+        }));
+    
+        res.send(JSON.stringify(data));
+    }
+    catch (err) {
+        console.error(err);
+        res.send(500);
+    }
+});
+
+
 //TODO change all these to POST after testing
-app.get('/getCoursesCurrent', async (req, res) => {
+app.get('/coursesCurrent', async (req, res) => {
     try {
         const courses = await catscraper.getCoursesCurrent();
         if (!courses) throw 1;
@@ -51,9 +71,28 @@ app.get('/courseinfo', async (req, res) => {
 
     const data = await catscraper.getPrereqs(query, year, term);
     if (!data) return res.sendStatus(404);
+    else if (typeof data == 'string') return res.send(JSON.stringify({
+        type: 1,
+        message: data
+    }));
 
     res.send(JSON.stringify(data));
-})
+});
+
+
+app.get('/prereqs', async (req, res) => {
+    const {sem, year, crn} = req.query;
+
+    const data = await catscraper.getPrereqs(crn, sem, year);
+    if (!data) return res.sendStatus(404);
+
+    else if (typeof data == 'string') return res.send(JSON.stringify({
+        type: 1,
+        message: data
+    }));
+    
+    res.send(JSON.stringify(data));
+});
 
 
 app.post('/*', async (req, res) => {

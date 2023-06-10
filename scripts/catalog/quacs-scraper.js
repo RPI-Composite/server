@@ -22,6 +22,34 @@ function getCurrentTerm() {
 }
 
 
+function formatSem(semRaw) {
+    var sem;
+    if (semRaw == 0) sem = 1;
+    else if (semRaw == 1) sem = 5;
+    else if (semRaw == 2) sem = 9;
+    else return "incorrect semester!";
+
+    return sem;
+}
+
+
+export async function getDepts(year, semRaw) {
+    try {
+        const sem = (semRaw) ? formatSem(semRaw) : null;
+        if (sem != null && Number(sem) == Number.isNaN()) return sem;
+        if (Number(year) != Number.isNaN() && Number(year) < 1999) return "incorrect year!";
+        const term = (year && sem) ? `${year}0${sem}` : getCurrentTerm();
+
+        const response = await axios.get(`${quacsCatBasePath}${term}/schools.json`);
+        return response.data;
+    }
+    catch (err) {
+        console.error(err);
+        return null;
+    }
+}
+
+
 /**
  * @description get the current courses for the current semester
  */
@@ -39,15 +67,15 @@ export async function getCoursesCurrent() {
  */
 export async function getCoursesTerm(year, semRaw) {
     try {
-        var sem;
-        if (semRaw == 0) sem = 1;
-        else if (semRaw == 1) sem = 5;
-        else if (semRaw == 2) sem = 9;
-        else return "incorrect semester!";
+        const sem = (semRaw) ? formatSem(semRaw) : null;
+        if (Number(sem) == Number.isNaN()) return sem;
+    
+        if (Number(year) != Number.isNaN() && Number(year) < 1999) return "incorrect year!";
+        const term = (year && sem) ? `${year}0${sem}` : getCurrentTerm();
 
         if (year == Number.NaN || year < 1999) return "incorrect year!";
         
-        const queryurl = `${quacsCatBasePath}${year}0${sem}/courses.json`;
+        const queryurl = `${quacsCatBasePath}${term}/courses.json`;
         const response = await axios.get(queryurl, {responseType: 'json'});
         return response.data;
     }
@@ -108,16 +136,18 @@ export async function searchCourses(termRaw, year = null, sem = null) {
 }
 
 
-export async function getPrereqs(query = null, year = null, sem = null) {
+export async function getPrereqs(crn = null, semRaw = null, year = null) {
+    const sem = (semRaw) ? formatSem(semRaw) : null;
+    if (Number(sem) == Number.isNaN()) return sem;
+
+    if (Number(year) != Number.isNaN() && Number(year) < 1999) return "incorrect year!";
     const term = (year && sem) ? `${year}0${sem}` : getCurrentTerm();
     try {
-        const result = await axios.get(`${quacsCatBasePath}/${term}/prerequisites.json`);
+        const result = await axios.get(`${quacsCatBasePath}${term}/prerequisites.json`);
         const allPrereqs = result.data;
 
-        return allPrereqs;
-
-        if (!query) return allPrereqs;
-        const filtered = allPrereqs[query];
+        if (!crn) return allPrereqs;
+        const filtered = allPrereqs[crn];
 
         return filtered;
     }
