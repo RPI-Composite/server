@@ -1,9 +1,5 @@
 import axios from "axios";
 import * as cheerio from 'cheerio';
-import { parseString } from 'xml2js';
-import path from "path";
-import fs from 'fs';
-
 
 const quacsCatBasePath = "https://raw.githubusercontent.com/quacs/quacs-data/master/semester_data/";
 

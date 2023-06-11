@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import * as catscraper from "./scripts/catalog/quacs-scraper.js";
-
+import * as calscraper from "./scripts/academic-calendar.js";
 
 
 //Setting up the app
@@ -16,6 +16,7 @@ app.get('/', async (req, res) => {
 });
 
 
+//#region Catalog
 app.get('/schools', async (req, res) => {
     try {
         const {year, sem} = req.query;
@@ -93,6 +94,37 @@ app.get('/prereqs', async (req, res) => {
     
     res.send(JSON.stringify(data));
 });
+
+//#endregion
+
+
+//#region Academic Calendar
+
+app.get('/acalRaw', async (req, res) => {
+    try {
+        const calDataRaw = await calscraper.scrapeCal();
+        if (!calDataRaw) return res.sendStatus(500);
+
+        const dataFormatted = calscraper.mapToObj(calDataRaw);
+        res.send(JSON.stringify(dataFormatted));
+    }
+    catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+
+app.get('/acalics', async (req, res) => {
+    res.set({'Content-Disposition': 'attachment; rpievents.ics','Content-Type': 'text/ics'});
+    
+    const calData = await calscraper.createIcs();
+    if (!calData) return res.sendStatus(500);
+
+    res.send(calData);
+});
+
+//#endregion
 
 
 app.post('/*', async (req, res) => {
