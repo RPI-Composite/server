@@ -3,6 +3,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import * as catscraper from "./scripts/catalog/quacs-scraper.js";
 import * as calscraper from "./scripts/academic-calendar.js";
+import * as housescraper from "./scripts/housing.js";
 
 
 //Setting up the app
@@ -122,6 +123,28 @@ app.get('/acalics', async (req, res) => {
     if (!calData) return res.sendStatus(500);
 
     res.send(calData);
+});
+
+//#endregion
+
+
+//#region HOUSING
+
+app.get('/dorms', async (req, res) => {
+    const data = await housescraper.scrapeDinPageMain();
+    if (!data) res.sendStatus(500);
+
+    res.send(JSON.stringify(data));
+});
+
+app.get('/dorm/:dormid', async (req, res) => {
+    const dormUrl = req.params.dormid;
+    if (!dormUrl) return res.sendStatus(404);
+
+    const response = await housescraper.getDorm(dormUrl);
+    if (!response) return res.sendStatus(404);
+
+    res.send(JSON.stringify(response));
 });
 
 //#endregion
