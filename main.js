@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import * as catscraper from "./scripts/catalog/quacs-scraper.js";
 import * as calscraper from "./scripts/academic-calendar.js";
 import * as housescraper from "./scripts/housing.js";
+import * as diningscraper from "./scripts/dining.js";
 
 
 //Setting up the app
@@ -137,6 +138,7 @@ app.get('/dorms', async (req, res) => {
     res.send(JSON.stringify(data));
 });
 
+
 app.get('/dorm/:dormid', async (req, res) => {
     const dormUrl = req.params.dormid;
     if (!dormUrl) return res.sendStatus(404);
@@ -149,6 +151,27 @@ app.get('/dorm/:dormid', async (req, res) => {
 
 //#endregion
 
+//#region DINING
+
+app.get('/dining', async (req, res) => {
+    const data = await diningscraper.getMealPrices();
+
+    if (!data) res.sendStatus(500);
+    res.send(JSON.stringify(data));
+});
+
+
+app.get('/diningplans', async (req, res) => {
+    const data = await diningscraper.scrapeDiningPlans();
+
+    if (!data) res.sendStatus(500);
+    res.send(JSON.stringify(data));
+});
+
+
+
+
+//#endregion
 
 app.post('/*', async (req, res) => {
     res.sendStatus(401);

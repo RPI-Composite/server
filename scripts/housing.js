@@ -4,11 +4,10 @@ const ratesurl = 'https://sll.rpi.edu/residential-commons/residential-commons-ho
 
 import axios, { formToJSON } from "axios";
 import * as cheerio from 'cheerio';
-import url from 'url';
+
 
 
 /**
- * 
  * @param {cheerio.Cheerio<cheerio.Element>} outerwrapper 
  * @returns {cheerio.Cheerio<cheerio.Element>}
  */
