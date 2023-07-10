@@ -169,6 +169,19 @@ app.get('/diningplans', async (req, res) => {
 });
 
 
+// special hours still broken
+app.get('/dininghalltimes', async (req, res) => {
+    try {
+        const data = await diningscraper.getDiningHallTimes(req.query.alldata);
+        if (!data) return res.sendStatus(500);
+        res.send(JSON.stringify(data));
+    }
+    catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
 
 
 //#endregion
