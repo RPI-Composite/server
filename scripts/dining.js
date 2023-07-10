@@ -78,9 +78,9 @@ export async function scrapeDiningPlans() {
 }
 
 
-async function getDiningSpecs(href) {
+async function getDiningSpecs(url) {
     try {
-        const response = await axios.get(`${baseurl}${href}`);
+        const response = await axios.get(url);
 
         const $ = cheerio.load(response.data);
         const pNum = $('.phone').first().text();
@@ -126,7 +126,7 @@ export async function getDiningHallTimes(full = false) {
                         const a = dBlock.children('h3').first().children().first();
                         
                         const pName = a.text().toLowerCase();
-                        obj[cat][pName] = {url: a.attr('href').substring(1), reghours: {}, spechours: {}};
+                        obj[cat][pName] = {url: `${baseurl}${a.attr('href').substring(1)}`, reghours: {}, spechours: {}};
                         const regHoursDiv = dBlock.children('.reghours');
 
                         regHoursDiv.children('div').each((i1, rh) => {

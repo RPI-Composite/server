@@ -153,7 +153,7 @@ app.get('/dorm/:dormid', async (req, res) => {
 
 //#region DINING
 
-app.get('/dining', async (req, res) => {
+app.get('/diningprices', async (req, res) => {
     const data = await diningscraper.getMealPrices();
 
     if (!data) res.sendStatus(500);
@@ -170,7 +170,7 @@ app.get('/diningplans', async (req, res) => {
 
 
 // special hours still broken
-app.get('/dininghalltimes', async (req, res) => {
+app.get('/dininghallinfo', async (req, res) => {
     try {
         const data = await diningscraper.getDiningHallTimes(req.query.alldata);
         if (!data) return res.sendStatus(500);
