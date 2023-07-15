@@ -131,10 +131,17 @@ export async function getDiningHallTimes(full = false) {
 
                         regHoursDiv.children('div').each((i1, rh) => {
                             const reghours = $(rh);
+
                             const days = reghours.children('.dining-block-days').attr('data-arrayregdays');
                             const hours = reghours.children('.dining-block-hours').text();
 
-                            obj[cat][pName]['reghours'][days] = hours;
+                            const hoursNote = reghours.children('.dining-block-note');
+                            if (hoursNote.length > 0) {
+                                const hNote = hoursNote.first().text();
+                                if(!obj[cat][pName]['reghours'][days]) obj[cat][pName]['reghours'][days] = {};
+                                obj[cat][pName]['reghours'][days][hNote] = hours;
+                            }
+                            else obj[cat][pName]['reghours'][days] = hours;
                         });
                     }
                     catch (err) {

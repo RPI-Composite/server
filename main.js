@@ -169,7 +169,7 @@ app.get('/diningplans', async (req, res) => {
 });
 
 
-// special hours still broken
+// special hours not implemented
 app.get('/dininghallinfo', async (req, res) => {
     try {
         const data = await diningscraper.getDiningHallTimes(req.query.alldata);
