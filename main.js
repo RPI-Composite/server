@@ -132,7 +132,7 @@ app.get('/acalics', async (req, res) => {
 //#region HOUSING
 
 app.get('/dorms', async (req, res) => {
-    const data = await housescraper.scrapeDinPageMain();
+    const data = await housescraper.scrapeHousingPageMain();
     if (!data) res.sendStatus(500);
 
     res.send(JSON.stringify(data));

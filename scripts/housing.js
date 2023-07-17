@@ -23,7 +23,7 @@ function recurseToTable(outerwrapper, depth = 50) {
 }
 
 
-export async function scrapeDinPageMain(name = undefined) {
+export async function scrapeHousingPageMain() {
     const response = await axios.get(`${baseurl}housing-comparison`);
     const $ = cheerio.load(response.data);
     const outerwrapper = $("#block-views-block-all-buildings-by-title-block-1");
@@ -39,7 +39,7 @@ export async function scrapeDinPageMain(name = undefined) {
 
             const resYear = td1.text().trim();
             const a = td2.children().first();
-            var fullurl = a.prop('href');
+            var fullurl = a.prop('href').replace('/buildings', '').replace('buildings', '');
 
             if (fullurl.startsWith('/')) fullurl = fullurl.replace('/', '');
     
@@ -140,18 +140,22 @@ function parseCommInfo(dataRaw, $) {
 export async function getDorm(dormName) {
     try {
         const key = dormName.toLowerCase();
-        const allDorms = await scrapeDinPageMain();
+        const allDorms = await scrapeHousingPageMain();
         const dorm = allDorms[key];
         if (!dorm) return null;
 
-        const url = `${baseurl}${dorm.url}`;
+        const url = `${baseurl}/buildings/${dorm.url}`;
         const response = await axios.get(url);
         const $ = cheerio.load(response.data);
         const wrapperMain = $('#block-paperclip-content').children('.content').first();
         
         const obj = {};
 
-        //#region parsong the data
+        //#region parsing the data
+        obj['title'] = $('.page-title').first().text();
+
+        obj['cohort'] = $('.class-year').first().text();
+
         obj['floorplan'] = wrapperMain.children('.floor-plans').first().children('a').first().prop('href');
 
         // Room types
