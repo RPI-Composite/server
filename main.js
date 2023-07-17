@@ -133,7 +133,7 @@ app.get('/acalics', async (req, res) => {
 
 app.get('/dorms', async (req, res) => {
     const data = await housescraper.scrapeHousingPageMain();
-    if (!data) res.sendStatus(500);
+    if (!data) return res.sendStatus(500);
 
     res.send(JSON.stringify(data));
 });
@@ -156,7 +156,7 @@ app.get('/dorm/:dormid', async (req, res) => {
 app.get('/diningprices', async (req, res) => {
     const data = await diningscraper.getMealPrices();
 
-    if (!data) res.sendStatus(500);
+    if (!data) return res.sendStatus(500);
     res.send(JSON.stringify(data));
 });
 
@@ -164,7 +164,7 @@ app.get('/diningprices', async (req, res) => {
 app.get('/diningplans', async (req, res) => {
     const data = await diningscraper.scrapeDiningPlans();
 
-    if (!data) res.sendStatus(500);
+    if (!data) return res.sendStatus(500);
     res.send(JSON.stringify(data));
 });
 
