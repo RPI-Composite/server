@@ -49,32 +49,42 @@ export async function getMealPrices() {
 
 
 export async function scrapeDiningPlans() {
-    const response = await axios.get(`${baseurl}my-meal-plan`);
-    const $ = cheerio.load(response.data);
-    const mainWrappers = $('.accordion-block');
+    try {
+        const response = await axios.get(`${baseurl}my-meal-plan`);
+        const $ = cheerio.load(response.data);
+        const mainWrappers = $('.accordion-block');
 
-    const obj = {};
+        const obj = {};
 
-    mainWrappers.each((i, wr) => {
-        const wrapperMain = $(wr);
-        const titleEl = wrapperMain.children('.accordion-title').first();
-        const content = wrapperMain.children('.accordion-panel');
-        if (titleEl.text().toLowerCase().indexOf('dining plans') != -1) {
-            const title = titleEl.text().trim();
-            obj[title] = {};
+        mainWrappers.each((i, wr) => {
+            try {
+                const wrapperMain = $(wr);
+                const titleEl = wrapperMain.children('.accordion-title').first();
+                const content = wrapperMain.children('.accordion-panel');
+                if (titleEl.text().toLowerCase().indexOf('dining plans') != -1) {
+                    const title = titleEl.text().trim();
+                    obj[title] = {};
 
-            content.children().each((i2, elRaw) => {
-                const el = $(elRaw);
-                // console.log(el.text());
-                const lineSplit = el.text().trim().split('--');
-                if (lineSplit.length > 1) {
-                    obj[title][lineSplit[0].trim()] = lineSplit[1].trim();
+                    content.children().each((i2, elRaw) => {
+                        const el = $(elRaw);
+                        const lineSplit = el.text().trim().split('--');
+                        if (lineSplit.length > 1) {
+                            obj[title][lineSplit[0].trim()] = lineSplit[1].trim();
+                        }
+                    });
                 }
-            });
-        }
-    });
+            } catch (err) {
+                console.error(err);
+                return;
+            }
+        });
 
-    return obj;
+        return obj;
+    }
+    catch (err) {
+        console.error(err);
+        return null;
+    }
 }
 
 
