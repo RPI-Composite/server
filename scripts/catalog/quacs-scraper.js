@@ -132,12 +132,14 @@ export async function searchCourses(termRaw, year = null, sem = null) {
 }
 
 
-export async function getPrereqs(crn = null, semRaw = null, year = null) {
-    const sem = (semRaw) ? formatSem(semRaw) : null;
-    if (Number(sem) == Number.isNaN()) return sem;
+export async function getPrereqs(crn, semRaw = null, year = null) {
+    if (!crn) return;
 
-    if (Number(year) != Number.isNaN() && Number(year) < 1999) return "incorrect year!";
+    let sem = (semRaw) ? formatSem(semRaw) : null;
+    if (Number(sem) == Number.isNaN()) sem = null;
+    if (Number(year) != Number.isNaN() && Number(year) < 1999) year = null;
     const term = (year && sem) ? `${year}0${sem}` : getCurrentTerm();
+
     try {
         const result = await axios.get(`${quacsCatBasePath}${term}/prerequisites.json`);
         const allPrereqs = result.data;

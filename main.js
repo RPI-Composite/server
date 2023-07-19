@@ -70,9 +70,9 @@ app.get('/searchCourses', async (req, res) => {
 
 
 app.get('/courseinfo', async (req, res) => {
-    const {query, year, term} = req.query;
+    const {crn, year, term} = req.query;
 
-    const data = await catscraper.getPrereqs(query, year, term);
+    const data = await catscraper.getPrereqs(crn, year, term);
     if (!data) return res.sendStatus(404);
     else if (typeof data == 'string') return res.send(JSON.stringify({
         type: 1,
