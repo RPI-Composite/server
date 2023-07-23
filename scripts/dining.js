@@ -42,7 +42,7 @@ export async function getMealPrices() {
         return obj;
     }
     catch (err) {
-        console.error(err);
+        // console.error(err);
         return null;
     }
 }
@@ -74,7 +74,7 @@ export async function scrapeDiningPlans() {
                     });
                 }
             } catch (err) {
-                console.error(err);
+                // console.error(err);
                 return;
             }
         });
@@ -82,7 +82,7 @@ export async function scrapeDiningPlans() {
         return obj;
     }
     catch (err) {
-        console.error(err);
+        // console.error(err);
         return null;
     }
 }
@@ -103,7 +103,7 @@ async function getDiningSpecs(url) {
         return [desc, pNum, {lat: latitude, long: longitude}];
     }
     catch (err) {
-        console.error(err);
+        // console.error(err);
         return [null, null, null];
     }
 }
