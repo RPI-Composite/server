@@ -50,10 +50,34 @@ export async function getDepts(year, semRaw) {
  * @description get the current courses for the current semester
  */
 export async function getCoursesCurrent() {
-    var query = getCurrentTerm();
+    try {
+        var query = getCurrentTerm();
 
-    const response = await axios.get(`${quacsCatBasePath}${query}/courses.json`, { responseType: "json" });
-    return response.data;
+        const coursesJSON = (await axios.get(`${quacsCatBasePath}${query}/courses.json`, { responseType: "json" })).data;
+        const catJSON = (await axios.get(`${quacsCatBasePath}${query}/catalog.json`, { responseType: "json" })).data;
+
+        let i = 0;
+        let j = 0;
+
+        for (const sect of coursesJSON) {
+            j = 0;
+            for (const course of sect.courses) {
+                if (catJSON[course.id]) {
+                    coursesJSON[i].courses[j].desc = catJSON[course.id].description
+                }
+
+                j++;
+            }
+
+            i++;
+        }
+        
+        return coursesJSON;
+    }
+    catch(err) {
+        console.error(err);
+        return null;
+    }
 }
 
 
